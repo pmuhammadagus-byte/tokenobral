@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TOKENOBRAL — API Key AI</title>
+<style>
+:root{--bg:#0a0a0a;--card:#171717;--border:#262626;--text:#ededed;--muted:#a3a3a3;--primary:#10b981;--primary-hover:#059669;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+.container{max-width:1000px;margin:0 auto;padding:0 20px;}
+nav{padding:20px 0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.logo{font-size:1.5rem;font-weight:800;letter-spacing:-1px;color:var(--text);text-decoration:none;}
+.logo span{color:var(--primary);}
+button{font:inherit;cursor:pointer;border:none;border-radius:8px;padding:10px 20px;font-weight:600;transition:all .2s;}
+.btn-primary{background:var(--primary);color:#000;}
+.btn-primary:hover{background:var(--primary-hover);color:#fff;}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-outline:hover{background:var(--card);}
+.hero{text-align:center;padding:80px 0 60px;}
+.hero h1{font-size:3rem;font-weight:800;margin-bottom:20px;letter-spacing:-1px;line-height:1.1;}
+.hero p{font-size:1.15rem;color:var(--muted);max-width:600px;margin:0 auto 40px;}
+.hidden{display:none !important;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:1000;backdrop-filter:blur(5px);}
+.modal-content{background:var(--card);padding:40px;border-radius:16px;width:100%;max-width:400px;border:1px solid var(--border);}
+.modal-content h2{margin-bottom:20px;text-align:center;}
+input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);margin-bottom:15px;font-size:1rem;}
+input:focus{outline:none;border-color:var(--primary);}
+.toggle-auth{text-align:center;margin-top:20px;font-size:.9rem;color:var(--muted);}
+.toggle-auth a{color:var(--primary);cursor:pointer;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<nav class="container" id="mainNav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; padding:15px 0;">
+  <a href="#" class="logo">TOKEN<span>OBRAL</span></a>
+  <div id="navAuth">
+    <button class="btn-outline" onclick="showAuth('login')">Masuk</button>
+    <button class="btn-primary" onclick="showAuth('register')">Daftar Gratis</button>
+  </div>
+  <div id="navDash" class="hidden">
+    <span style="margin-right:15px;color:var(--muted)" id="userEmail"></span>
+    <button class="btn-outline" onclick="logout()">Keluar</button>
+  </div>
+</nav>
+
+<div id="landingPage">
+  <section class="hero container">
+    <div style="display:inline-block;background:rgba(16,185,129,0.15);color:var(--primary);padding:6px 16px;border-radius:20px;font-size:.85rem;font-weight:700;margin-bottom:20px;">🔥 MULAI DARI Rp 4.000</div>
+    <h1>API Key AI Termurah.<br><span style="color:var(--primary);">Mulai Rp 4.000.</span></h1>
+    <p>Satu API Key, akses multi-model auto-route. Bayar sesuai paket, tanpa langganan bulanan yang membebani.</p>
+    <button class="btn-primary" style="padding:15px 40px;font-size:1.1rem;" onclick="showAuth('register')">Daftar Sekarang →</button>
+  </section>
+
+  <section id="pricingSection" class="container" style="padding:60px 20px;text-align:center;">
+    <h2 style="font-size:2rem;margin-bottom:10px;">Pilih Paket</h2>
+    <p style="color:var(--muted);margin-bottom:40px;">Semua paket dapat akses penuh ke pool model AI.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1000px;margin:0 auto;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;text-align:left;">
+        <div style="font-size:.85rem;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Harian</div>
+        <div style="font-size:2.5rem;font-weight:800;">Rp 4.000</div>
+        <div style="font-size:.9rem;color:var(--muted);margin-bottom:20px;">1 hari · 40 juta token</div>
+        <ul style="list-style:none;margin-bottom:20px;font-size:.9rem;">
+          <li style="padding:6px 0;">✅ 40 juta token</li>
+          <li style="padding:6px 0;">✅ Pool auto-route</li>
+          <li style="padding:6px 0;">✅ OpenAI compatible</li>
+        </ul>
+        <button class="btn-outline" style="width:100%;" onclick="buyPlan('harian', 4000)">Beli Harian</button>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;text-align:left;">
+        <div style="font-size:.85rem;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Mingguan <span style="color:var(--primary);">· HEMAT 29%</span></div>
+        <div style="font-size:2.5rem;font-weight:800;">Rp 20.000</div>
+        <div style="font-size:.9rem;color:var(--muted);margin-bottom:20px;">7 hari · 280 juta token</div>
+        <ul style="list-style:none;margin-bottom:20px;font-size:.9rem;">
+          <li style="padding:6px 0;">✅ 280 juta token</li>
+          <li style="padding:6px 0;">✅ Semua fitur Harian</li>
+          <li style="padding:6px 0;">✅ Lebih hemat</li>
+        </ul>
+        <button class="btn-primary" style="width:100%;" onclick="buyPlan('mingguan', 20000)">Beli Mingguan</button>
+      </div>
+      <div style="background:var(--card);border:2px solid var(--primary);border-radius:16px;padding:30px;text-align:left;box-shadow:0 0 40px rgba(16,185,129,0.15);">
+        <div style="font-size:.85rem;text-transform:uppercase;color:var(--primary);margin-bottom:8px;">Bulanan · HEMAT 58%</div>
+        <div style="font-size:2.5rem;font-weight:800;color:var(--primary);">Rp 50.000</div>
+        <div style="font-size:.9rem;color:var(--muted);margin-bottom:20px;">30 hari · 1,2 miliar token</div>
+        <ul style="list-style:none;margin-bottom:20px;font-size:.9rem;">
+          <li style="padding:6px 0;">✅ 1,2 miliar token</li>
+          <li style="padding:6px 0;">✅ Semua fitur Mingguan</li>
+          <li style="padding:6px 0;">✅ Paling hemat</li>
+        </ul>
+        <button class="btn-primary" style="width:100%;" onclick="buyPlan('bulanan', 50000)">Beli Bulanan</button>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.85rem;margin-top:30px;">Soft cap 40 juta token/hari. Paket tidak otomatis diperpanjang.</p>
+  </section>
+</div>
+
+<div id="dashboardPage" class="hidden">
+  <div class="container" style="padding:40px 0;max-width:800px;margin:0 auto;">
+    <h1 style="margin-bottom:30px;">Dashboard</h1>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:20px;">
+      <div style="font-size:.85rem;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Endpoint URL</div>
+      <div style="background:var(--bg);padding:15px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:monospace;font-size:.95rem;word-break:break-all;">https://api.tokenobral.com/v1</span>
+        <button class="btn-outline" onclick="navigator.clipboard.writeText('https://api.tokenobral.com/v1');alert('Endpoint di-copy!')">Copy</button>
+      </div>
+      <div style="font-size:.85rem;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">API Key Kamu</div>
+      <div style="background:var(--bg);padding:15px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span id="uiApiKey" style="font-family:monospace;font-size:.95rem;color:var(--primary);word-break:break-all;">API Key akan dibuat otomatis saat kamu login</span>
+        <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('uiApiKey').innerText);alert('API Key di-copy!')">Copy</button>
+      </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:20px;">
+          <div id="uiPlanType" style="font-size:1.4rem;font-weight:800;">Belum ada paket</div>
+        </div>
+        <button class="btn-outline" onclick="showPricing()">Beli / Top-up</button>
+      </div>
+      <div style="font-size:.85rem;color:var(--muted);text-transform:uppercase;margin-bottom:5px;">Masa Aktif</div>
+      <div id="uiPlanExpiry" style="margin-bottom:20px;font-weight:600;">-</div>
+      <div style="font-size:.85rem;color:var(--muted);text-transform:uppercase;margin-bottom:5px;">Penggunaan Token</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span id="uiQuotaText">0 / 0 Token</span>
+        <span id="uiQuotaPercent">0%</span>
+      </div>
+      <div style="height:12px;background:var(--bg);border-radius:6px;overflow:hidden;">
+        <div id="uiQuotaBar" style="height:100%;background:var(--primary);width:0%;transition:width .5s;"></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:30px;">
+      <p style="color:var(--muted);margin-bottom:15px;">Butuh bantuan? Hubungi Admin.</p>
+      <a href="https://wa.me/6285172273365?text=Halo%20Admin%20TOKENOBRAL" target="_blank" class="btn-primary" style="text-decoration:none;display:inline-block;">Chat Admin via WhatsApp</a>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:20px;margin-top:20px;">
+      <div style="font-size:.85rem;color:var(--muted);text-transform:uppercase;margin-bottom:15px;">Order Saya</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:20px;margin-top:20px;">
+      <div style="font-size:.85rem;color:var(--muted);text-transform:uppercase;margin-bottom:15px;">Model AI Tersedia</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-family:monospace;font-size:1.1rem;color:var(--primary);font-weight:bold;margin-bottom:10px;">auto-router</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-bottom:15px;line-height:1.5;">
+            Satu endpoint, auto-route ke model terbaik:<br>
+            GPT-4o, Llama 3.1, Qwen 2.5, DeepSeek V3, GLM-5.3
+          </div>
+          <button class="btn-outline" style="width:100%;padding:6px;font-size:.8rem;" onclick="navigator.clipboard.writeText('auto-router');alert('✅ auto-router dicopy')">Copy Model ID</button>
+        </div>
+      </div>
+    </div>
+      <div id="uiOrders"><div style="color:var(--muted);font-size:.9rem;">Belum ada order. Klik "Beli / Top-up" untuk mulai.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="authModal" class="modal hidden">
+  <div class="modal-content">
+    <h2 id="authTitle">Masuk</h2>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPass" placeholder="Password (min. 6 karakter)">
+    <button class="btn-primary" style="width:100%;margin-top:10px;" id="authSubmitBtn" onclick="handleAuth()">Masuk</button>
+    <div class="toggle-auth"><span id="authToggleText">Belum punya akun?</span> <a id="authToggleLink" onclick="toggleAuthMode()">Daftar</a></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// KONFIGURASI SUPABASE
+const SUPABASE_URL = 'https://ebzycnqfbrsbqhmthmux.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVienljbnFmYnJzYnFobXRobXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzI3MjcsImV4cCI6MjEwMTYwODcyN30.HfB6CSHtY_jM-1YKS0-2IlU2MtsOgWSNkOaguMQ4Pt0';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const BACKEND_URL = 'https://tokenobral-api.workers.dev';
+
+let isLoginMode = true;
+let currentUser = null;
+
+function showAuth(mode) {
+  isLoginMode = (mode === 'login');
+  document.getElementById('authTitle').innerText = isLoginMode ? 'Masuk' : 'Daftar';
+  document.getElementById('authSubmitBtn').innerText = isLoginMode ? 'Masuk' : 'Daftar Sekarang';
+  document.getElementById('authToggleText').innerText = isLoginMode ? 'Belum punya akun?' : 'Sudah punya akun?';
+  document.getElementById('authToggleLink').innerText = isLoginMode ? 'Daftar' : 'Masuk';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPass').value = '';
+  document.getElementById('authModal').classList.remove('hidden');
+}
+
+function toggleAuthMode() {
+  showAuth(isLoginMode ? 'register' : 'login');
+}
+
+async function handleAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPass').value;
+  const btn = document.getElementById('authSubmitBtn');
+
+  if (!email || !password) {
+    alert("Email dan password wajib diisi!");
+    return;
+  }
+
+  btn.innerText = 'Memproses...';
+  btn.disabled = true;
+
+  const endpoint = isLoginMode 
+    ? `${SUPABASE_URL}/auth/v1/token?grant_type=password` 
+    : `${SUPABASE_URL}/auth/v1/signup`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Tampilkan error asli dari Supabase
+      throw new Error(data.msg || data.error_description || data.message || "Gagal terhubung ke server");
+    }
+
+    alert(isLoginMode ? "Login Berhasil!" : "Pendaftaran Berhasil! Silakan masuk.");
+    
+    if (isLoginMode) {
+      currentUser = data.user;
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('userEmail', data.user.email);
+      localStorage.setItem('userId', data.user.id);
+      document.getElementById('authModal').classList.add('hidden');
+      checkSession();
+    } else {
+      // Setelah daftar, arahkan ke mode login
+      showAuth('login');
+      alert("Akun dibuat. Silakan klik Masuk.");
+    }
+
+  } catch (err) {
+    if (err.message.includes("User already registered") || err.message.includes("already registered")) {
+      alert("Email ini sudah terdaftar. Silakan masuk (Login).");
+      showAuth("login");
+      document.getElementById("authEmail").value = email;
+    } else {
+      alert("ERROR: " + err.message);
+    }
+  } finally {
+    btn.innerText = isLoginMode ? 'Masuk' : 'Daftar Sekarang';
+    btn.disabled = false;
+  }
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('token');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userId');
+  checkSession();
+}
+
+function checkSession() {
+  const token = localStorage.getItem('token');
+  const email = localStorage.getItem('userEmail');
+  
+  if (token && email) {
+    currentUser = { email: email };
+    document.getElementById('navAuth').classList.add('hidden');
+    document.getElementById('navDash').classList.remove('hidden');
+    document.getElementById('userEmail').innerText = email;
+    document.getElementById('landingPage').classList.add('hidden');
+    document.getElementById('dashboardPage').classList.remove('hidden');
+    document.getElementById('authModal').classList.add('hidden');
+      loadDashboardData();
+  } else {
+    document.getElementById('navAuth').classList.remove('hidden');
+    document.getElementById('navDash').classList.add('hidden');
+    document.getElementById('landingPage').classList.remove('hidden');
+    document.getElementById('dashboardPage').classList.add('hidden');
+  }
+}
+
+
+
+
+
+async function loadDashboardData() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    // 1. Verifikasi token login ke Supabase
+    const { data: { user }, error } = await sb.auth.getUser(token);
+    if (error || !user) {
+      localStorage.clear();
+      alert("Sesi login tidak valid atau sudah kadaluwarsa. Silakan login ulang.");
+      window.location.reload();
+      return;
+    }
+    
+    const userId = user.id;
+    localStorage.setItem('userId', userId);
+    localStorage.setItem('userEmail', user.email);
+
+    // 2. Ambil data customer dari database
+    const res = await fetch(SUPABASE_URL + '/rest/v1/customers?id=eq.' + userId + '&select=*', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    
+    let c = (data && data.length > 0) ? data[0] : null;
+
+    // 3. Tampilkan API Key
+    if (c && c.api_key && c.api_key.length > 5 && !c.api_key.includes('Silahkan') && c.api_key !== 'sk-belum-dibuat-admin') {
+      document.getElementById('uiApiKey').innerText = c.api_key;
+    } else {
+      try {
+        const keyRes = await fetch(BACKEND_URL + '/api/ensure-api-key', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        const keyData = await keyRes.json();
+        if (keyRes.ok && keyData.api_key) {
+          document.getElementById('uiApiKey').innerText = keyData.api_key;
+        } else {
+          document.getElementById('uiApiKey').innerText = 'Error: ' + (keyData.error || 'unknown');
+        }
+      } catch(e) {
+        document.getElementById('uiApiKey').innerText = 'Gagal konek: ' + e.message;
+      }
+    }
+    
+    // 4. Load riwayat order
+    if (typeof loadOrders === 'function') loadOrders();
+    
+  } catch (e) { 
+    console.error('Load dashboard error:', e); 
+  }
+}
+
+async function loadOrders() {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  if (!token || !userId) return;
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/purchase_requests?customer_id=eq.' + userId + '&select=*&order=created_at.desc&limit=10', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + token }
+    });
+    const orders = await res.json();
+    const el = document.getElementById('uiOrders');
+    if (!el) return;
+    if (!orders || orders.length === 0) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:.9rem;">Belum ada order. Klik "Beli / Top-up" untuk mulai.</div>';
+      return;
+    }
+    const plans = { harian: 'Harian', mingguan: 'Mingguan', bulanan: 'Bulanan' };
+    const statusColors = { pending: '#f59e0b', approved: '#10b981', rejected: '#ef4444' };
+    const statusLabels = { pending: '⏳ Menunggu Bayar', approved: '✅ Disetujui', rejected: '❌ Ditolak' };
+    el.innerHTML = orders.map(o => {
+      const d = new Date(o.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
+        + '<div><div style="font-weight:700;">Order #' + o.id + ' — ' + (plans[o.plan_type]||o.plan_type) + '</div>'
+        + '<div style="font-size:.8rem;color:var(--muted);">' + d + ' · Rp ' + o.price.toLocaleString('id-ID') + '</div></div>'
+        + '<div style="font-size:.85rem;font-weight:600;color:' + statusColors[o.status] + ';">' + statusLabels[o.status] + '</div>'
+        + '</div></div>';
+    }).join('');
+  } catch(e) { console.error('Load orders error:', e); }
+}
+
+
+
+setInterval(() => { if (currentUser) loadDashboardData(); }, 30000);
+
+// Cek sesi saat halaman dimuat
+checkSession();
+
+
+
+
+
+
+// ==========================================
+// LOGIKA PEMBAYARAN BARU (BERSIH)
+// ==========================================
+function showPricing() {
+  const modal = document.getElementById('pricingModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+async function buyPlan(plan, price) {
+  document.getElementById('pricingModal').classList.add('hidden');
+  const userId = localStorage.getItem('userId');
+  const email = localStorage.getItem('userEmail');
+
+  if (!userId || !email) {
+    alert('Sesi login habis. Silakan login ulang.');
+    return;
+  }
+
+  // Loading Spinner Modern
+  const loadingDiv = document.createElement('div');
+  loadingDiv.id = 'loadingOverlay';
+  loadingDiv.style = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;';
+  loadingDiv.innerHTML = '<div style="width:40px; height:40px; border:4px solid rgba(255,255,255,0.3); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div><div style="font-weight:600;">Menyiapkan Pembayaran...</div><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>';
+  document.body.appendChild(loadingDiv);
+
+  try {
+    const res = await fetch(BACKEND_URL + '/api/create-qris', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id: userId, customer_email: email, plan_type: plan })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Gagal');
+
+    // Hilangkan loading, tampilkan QR & Nominal
+    document.body.removeChild(loadingDiv);
+    document.getElementById('qrisImage').src = data.qris_image;
+    
+    // Format Rupiah (Contoh: 4000 -> Rp 4.000)
+    const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
+    document.getElementById('qrisAmount').innerText = formatter.format(price);
+    
+    document.getElementById('qrisModal').classList.remove('hidden');
+
+  } catch (error) {
+    document.body.removeChild(loadingDiv);
+    alert('ERROR: ' + error.message);
+  }
+}
+
+</script>
+
+<!-- MODAL QRIS -->
+
+
+
+
+
+<!-- MODAL PILIH PAKET (BARU) -->
+
+
+<!-- MODAL QRIS (BARU) -->
+
+
+
+<!-- MODAL PILIH PAKET (DESAIN BARU) -->
+<div id="pricingModal" class="modal hidden" style="display:flex; justify-content:center; align-items:center; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index:9999;">
+  <div style="background:var(--card); padding:24px; border-radius:16px; max-width:400px; width:90%; border:1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <h3 style="margin-bottom:20px; color:var(--text); font-size:1.4rem; text-align:center;">Pilih Paket Anda</h3>
+    
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <button class="btn-outline" style="width:100%; padding:16px; text-align:left; border-radius:12px; display:flex; justify-content:space-between; align-items:center;" onclick="buyPlan('harian', 4000)">
+        <div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--text);">Harian</div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">40 Juta Token / 1 Hari</div>
+        </div>
+        <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Rp 4.000</div>
+      </button>
+
+      <button class="btn-outline" style="width:100%; padding:16px; text-align:left; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border-color:var(--primary); background:rgba(16,185,129,0.05);" onclick="buyPlan('mingguan', 20000)">
+        <div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--text);">Mingguan <span style="font-size:0.7rem; background:var(--primary); color:#000; padding:2px 6px; border-radius:4px; margin-left:6px;">HEMAT</span></div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">280 Juta Token / 7 Hari</div>
+        </div>
+        <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Rp 20.000</div>
+      </button>
+
+      <button class="btn-outline" style="width:100%; padding:16px; text-align:left; border-radius:12px; display:flex; justify-content:space-between; align-items:center;" onclick="buyPlan('bulanan', 50000)">
+        <div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--text);">Bulanan <span style="font-size:0.7rem; background:var(--primary); color:#000; padding:2px 6px; border-radius:4px; margin-left:6px;">PALING HEMAT</span></div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">1,2 Miliar Token / 30 Hari</div>
+        </div>
+        <div style="font-weight:800; color:var(--primary); font-size:1.1rem;">Rp 50.000</div>
+      </button>
+    </div>
+
+    <button class="btn-outline" style="width:100%; margin-top:20px; padding:12px; border:none; color:var(--muted);" onclick="document.getElementById('pricingModal').classList.add('hidden')">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL QRIS (DESAIN BARU) -->
+<div id="qrisModal" class="modal hidden" style="display:flex; justify-content:center; align-items:center; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index:9999;">
+  <div style="background:var(--card); padding:24px; border-radius:16px; text-align:center; max-width:320px; width:90%; border:1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <h3 style="color:var(--text); font-size:1.3rem; margin-bottom:8px;">Pembayaran QRIS</h3>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:20px;">Scan menggunakan DANA, OVO, GoPay, atau M-Banking</p>
+    
+    <div style="background:white; padding:16px; border-radius:16px; display:inline-block; margin-bottom:16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+      <img id="qrisImage" src="" style="width:200px; height:200px; display:block;">
+    </div>
+    
+    <div style="margin-bottom:20px;">
+      <div style="font-size:0.85rem; color:var(--muted);">Total Tagihan</div>
+      <div id="qrisAmount" style="font-size:1.6rem; font-weight:800; color:var(--primary);">Rp 0</div>
+    </div>
+
+    <button class="btn-outline" style="width:100%;" onclick="document.getElementById('qrisModal').classList.add('hidden')">Tutup</button>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script id="force-api-key">
+  // Script ini berjalan setiap 3 detik untuk memastikan API Key muncul
+  setInterval(async () => {
+    const token = localStorage.getItem('token');
+    const el = document.getElementById('uiApiKey');
+    
+    if (token && el) {
+      const currentText = el.innerText;
+      // Jika teks masih bawaan, paksa ambil dari backend!
+      if (currentText.includes('akan dibuat otomatis') || currentText.includes('Silahkan beli') || currentText === '') {
+        try {
+          const res = await fetch(BACKEND_URL + '/api/ensure-api-key', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const data = await res.json();
+          if (data.api_key) {
+            el.innerText = data.api_key;
+          }
+        } catch(e) {
+          console.log('Menunggu koneksi backend...', e);
+        }
+      }
+    }
+  }, 3000);
+</script>
+
+</body>
+</html>
