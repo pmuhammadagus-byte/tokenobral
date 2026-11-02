@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import QRCode from 'qrcode';
+import { createQRIS } from './nasionalpay.js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -35,8 +35,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Ensure customer exists in customers table FIRST to avoid foreign key errors
-    // Use upsert to handle case where they don't exist yet
+    // Sync customer row first to avoid FK constraint issues
     const { error: custError } = await sbAdmin.from('customers').upsert({
       id: customer_id,
       email: customer_email,
@@ -49,7 +48,6 @@ export default async function handler(req, res) {
 
     if (custError) {
       console.error('Customer sync error:', custError);
-      // If it's a UUID error, we return 400
       if (custError.code === '22P02') {
         return res.status(400).json({ error: 'Invalid User ID format. Please log in again.' });
       }
@@ -57,7 +55,9 @@ export default async function handler(req, res) {
     }
 
     const price = PLANS[plan_type] || 4000;
-    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+
+    // Generate real QRIS via NasionalPay
+    const payment = await createQRIS(price, customer_email.split('@')[0]);
 
     const { error: insertError } = await sbAdmin
       .from('purchase_requests')
@@ -74,15 +74,12 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to save order: ' + insertError.message });
     }
 
-    // Generate real QR code representing the payment
-    const qrisPayload = `TOKENOBRAL|${orderId}|${plan_type}|${price}|${customer_email}`;
-    const qrSvg = await QRCode.toString(qrisPayload, { type: 'svg', margin: 2, width: 200 });
-    const qrisBase64 = Buffer.from(qrSvg).toString('base64');
-
     return res.status(200).json({
-      qris_image: `data:image/svg+xml;base64,${qrisBase64}`,
-      amount: price,
-      order_id: orderId,
+      qris_image: payment.qris_image,
+      qris_data: payment.qris_data,
+      amount: Number(payment.amount),
+      order_id: payment.transaction_id,
+      expired_at: payment.expired_at,
     });
 
   } catch (err) {
