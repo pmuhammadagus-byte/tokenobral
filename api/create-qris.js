@@ -43,6 +43,7 @@ export default async function handler(req, res) {
       .from('purchase_requests')
       .insert({
         customer_id,
+        customer_email,
         plan_type,
         price,
         status: 'pending',
