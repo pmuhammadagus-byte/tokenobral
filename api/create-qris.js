@@ -37,13 +37,19 @@ export default async function handler(req, res) {
     }
 
     const price = PLANS[plan_type] || 4000;
-    const orderId = `ORD-${Date.now()}-${customer_id.slice(0, 8)}`;
+    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
 
-    // Save purchase request
+    // Save purchase request - handle customer_id if it's not a valid UUID
+    let validUuid = customer_id;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(customer_id)) {
+      validUuid = '00000000-0000-0000-0000-000000000000';
+    }
+
     const { error: insertError } = await sbAdmin
       .from('purchase_requests')
       .insert({
-        customer_id,
+        customer_id: validUuid,
         customer_email,
         plan_type,
         price,
@@ -55,7 +61,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to save order: ' + insertError.message });
     }
 
-    // Generate real QR code payload representing the payment
+    // Generate real QR code representing the payment
     const qrisPayload = `TOKENOBRAL|${orderId}|${plan_type}|${price}|${customer_email}`;
     const qrSvg = await QRCode.toString(qrisPayload, { type: 'svg', margin: 2, width: 200 });
     const qrisBase64 = Buffer.from(qrSvg).toString('base64');
