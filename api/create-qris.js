@@ -4,8 +4,6 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const sbAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
 const PLANS = {
   harian: 4000,
   mingguan: 20000,
@@ -26,6 +24,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(500).json({ error: 'Server configuration error: missing env vars' });
+    }
+
+    const sbAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
     const { customer_id, customer_email, plan_type } = req.body;
 
     if (!customer_id || !customer_email || !plan_type) {
@@ -35,7 +39,7 @@ export default async function handler(req, res) {
     const price = PLANS[plan_type] || 4000;
 
     // Save purchase request
-    const { error } = await sbAdmin
+    const { error: insertError } = await sbAdmin
       .from('purchase_requests')
       .insert({
         customer_id,
@@ -44,13 +48,12 @@ export default async function handler(req, res) {
         status: 'pending',
       });
 
-    if (error) {
-      console.error('Supabase insert error:', error);
-      return res.status(500).json({ error: 'Failed to save order' });
+    if (insertError) {
+      console.error('Supabase insert error:', insertError);
+      return res.status(500).json({ error: 'Failed to save order: ' + insertError.message });
     }
 
     // Generate mock QRIS (SVG base64)
-    // In production: integrate with Midtrans/Xendit
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
         <rect width="200" height="200" fill="white"/>
