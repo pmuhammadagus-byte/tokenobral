@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
+import QRCode from 'qrcode';
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const PLANS = {
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
     }
 
     const price = PLANS[plan_type] || 4000;
+    const orderId = `ORD-${Date.now()}-${customer_id.slice(0, 8)}`;
 
     // Save purchase request
     const { error: insertError } = await sbAdmin
@@ -54,24 +55,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to save order: ' + insertError.message });
     }
 
-    // Generate mock QRIS (SVG base64)
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-        <rect width="200" height="200" fill="white"/>
-        <rect x="10" y="10" width="180" height="180" fill="none" stroke="black" stroke-width="2"/>
-        <text x="100" y="80" text-anchor="middle" font-family="monospace" font-size="12" fill="black">QRIS</text>
-        <text x="100" y="100" text-anchor="middle" font-family="monospace" font-size="10" fill="black">MOCK</text>
-        <text x="100" y="120" text-anchor="middle" font-family="monospace" font-size="9" fill="black">${plan_type}</text>
-        <text x="100" y="135" text-anchor="middle" font-family="monospace" font-size="9" fill="black">Rp ${price.toLocaleString('id-ID')}</text>
-        <text x="100" y="160" text-anchor="middle" font-family="monospace" font-size="7" fill="gray">${customer_id.slice(0,8)}</text>
-      </svg>
-    `;
-    const qrisBase64 = Buffer.from(svg).toString('base64');
+    // Generate real QR code payload representing the payment
+    const qrisPayload = `TOKENOBRAL|${orderId}|${plan_type}|${price}|${customer_email}`;
+    const qrSvg = await QRCode.toString(qrisPayload, { type: 'svg', margin: 2, width: 200 });
+    const qrisBase64 = Buffer.from(qrSvg).toString('base64');
 
     return res.status(200).json({
       qris_image: `data:image/svg+xml;base64,${qrisBase64}`,
       amount: price,
-      order_id: `ORD-${Date.now()}-${customer_id.slice(0, 8)}`,
+      order_id: orderId,
     });
 
   } catch (err) {
