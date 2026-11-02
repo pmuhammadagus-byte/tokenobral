@@ -49,13 +49,19 @@ export default async function handler(req, res) {
     }
 
     // 3. Forward request to upstream AI provider
+    // If model is 'auto-router', force it to use 'Combo' (our router model)
+    const requestBody = { ...req.body };
+    if (requestBody.model === 'auto-router') {
+      requestBody.model = 'Combo';
+    }
+
     const upstreamResponse = await fetch(`${UPSTREAM_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.NINE_ROUTER_KEY || UPSTREAM_KEY}`
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(requestBody)
     });
 
     const data = await upstreamResponse.json();
