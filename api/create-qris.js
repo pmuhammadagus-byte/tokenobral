@@ -29,38 +29,31 @@ export default async function handler(req, res) {
     }
 
     const sbAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
     const { customer_id, customer_email, plan_type } = req.body;
 
     if (!customer_id || !customer_email || !plan_type) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Validate or auto-register customer to satisfy foreign key constraint
-    let validUuid = customer_id;
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    
-    if (!uuidRegex.test(customer_id)) {
-      validUuid = '00000000-0000-0000-0000-000000000000';
-    }
+    // Ensure customer exists in customers table FIRST to avoid foreign key errors
+    // Use upsert to handle case where they don't exist yet
+    const { error: custError } = await sbAdmin.from('customers').upsert({
+      id: customer_id,
+      email: customer_email,
+      display_name: customer_email.split('@')[0],
+      quota_total: 0,
+      quota_used: 0,
+      status: 'active',
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'id' });
 
-    // Ensure customer exists in customers table
-    const { data: existingCust } = await sbAdmin
-      .from('customers')
-      .select('id')
-      .eq('id', validUuid)
-      .maybeSingle();
-
-    if (!existingCust) {
-      await sbAdmin.from('customers').upsert({
-        id: validUuid,
-        email: customer_email,
-        display_name: customer_email.split('@')[0],
-        quota_total: 0,
-        quota_used: 0,
-        status: 'active',
-        updated_at: new Date().toISOString()
-      });
+    if (custError) {
+      console.error('Customer sync error:', custError);
+      // If it's a UUID error, we return 400
+      if (custError.code === '22P02') {
+        return res.status(400).json({ error: 'Invalid User ID format. Please log in again.' });
+      }
+      return res.status(500).json({ error: 'Failed to sync user: ' + custError.message });
     }
 
     const price = PLANS[plan_type] || 4000;
@@ -69,7 +62,7 @@ export default async function handler(req, res) {
     const { error: insertError } = await sbAdmin
       .from('purchase_requests')
       .insert({
-        customer_id: validUuid,
+        customer_id,
         customer_email,
         plan_type,
         price,
