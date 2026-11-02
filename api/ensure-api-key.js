@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid token: ' + (authError?.message || 'no user') });
     }
 
-    // Get or create API key (use maybeSingle instead of single to avoid throwing on 0 rows)
+    // Get or create API key
     const { data: customer, error: fetchError } = await sbAdmin
       .from('customers')
       .select('api_key')
@@ -48,14 +48,23 @@ export default async function handler(req, res) {
     let apiKey = customer?.api_key;
     
     if (!apiKey || apiKey.includes('belum') || apiKey === 'sk-belum-dibuat-admin') {
-      apiKey = 'sk-' + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+      apiKey = 'sk-tob-' + Math.random().toString(36).substring(2, 12);
       
       const { error: upsertError } = await sbAdmin
         .from('customers')
-        .upsert({ id: user.id, api_key: apiKey, updated_at: new Date().toISOString() });
+        .upsert({ 
+          id: user.id, 
+          email: user.email,
+          display_name: user.email.split('@')[0],
+          api_key: apiKey, 
+          quota_total: 0,
+          quota_used: 0,
+          status: 'active',
+          updated_at: new Date().toISOString() 
+        });
 
       if (upsertError) {
-        return res.status(500).json({ error: 'Failed to save API key: ' + upsertError.message });
+        return res.status(500).json({ error: 'Failed to register customer: ' + upsertError.message });
       }
     }
 
