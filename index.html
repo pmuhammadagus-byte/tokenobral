@@ -165,7 +165,7 @@ input:focus{outline:none;border-color:var(--primary);}
 const SUPABASE_URL = 'https://ebzycnqfbrsbqhmthmux.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVienljbnFmYnJzYnFobXRobXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzI3MjcsImV4cCI6MjEwMTYwODcyN30.HfB6CSHtY_jM-1YKS0-2IlU2MtsOgWSNkOaguMQ4Pt0';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const BACKEND_URL = 'https://tokenobral-api.workers.dev';
+const BACKEND_URL = window.location.origin;
 
 let isLoginMode = true;
 let currentUser = null;
