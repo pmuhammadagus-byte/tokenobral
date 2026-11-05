@@ -2,151 +2,163 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tokenobral Dashboard</title>
-    <style>
-        body { font-family: system-ui, sans-serif; background: #ffffff; color: #111; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .logo { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-align: center; }
-        .logo span { color: #22c55e; }
-        .box { width: 100%; max-width: 400px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; box-sizing: border-box; margin-bottom: 15px; }
-        .box-white { background: #fff; }
-        input { width: 100%; padding: 12px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; background: #22c55e; color: #000; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { background: #16a34a; }
-        .btn-outline { background: #fff; border: 2px solid #22c55e; }
-        .hidden { display: none !important; }
-        .err { color: red; font-size: 14px; text-align: center; margin-top: 10px; }
-        .api { font-family: monospace; font-weight: bold; color: #16a34a; word-break: break-all; margin: 10px 0; text-align: center; }
-        .url-box { background: #fff; border: 1px solid #e5e7eb; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-        .url-box code { font-size: 12px; color: #16a34a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .url-box button { width: auto; padding: 6px 12px; font-size: 12px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenobral - API Key AI Termurah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }, colors: { brand: '#10B981' } } } }
+    </script>
 </head>
-<body>
-    <div class="logo">TOKEN<span>OBRAL</span></div>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased overflow-x-hidden">
 
-    <!-- FORM LOGIN -->
-    <div id="login-box" class="box box-white">
-        <h3 style="margin-top:0; text-align:center;">Masuk Akun</h3>
-        <label>Email</label>
-        <input type="email" id="email" placeholder="email@anda.com">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="••••••••">
-        <button onclick="doLogin()" id="btn-login">Masuk</button>
-        <div id="msg" class="err"></div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div id="dash-box" class="hidden" style="width:100%; max-width:400px;">
-        
-        <!-- ENDPOINT URL -->
-        <div class="box box-white">
-            <p style="font-size:12px; font-weight:bold; color:#6b7280; margin:0 0 5px 0;">ENDPOINT URL</p>
-            <div class="url-box">
-                <code>https://tokenobral-api.cakagus.workers.dev/v1</code>
-                <button onclick="copyText('https://tokenobral-api.cakagus.workers.dev/v1')">Copy</button>
+    <nav class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="/" class="text-2xl font-extrabold tracking-tight text-gray-900">TOKEN<span class="text-brand">OBRAL</span></a>
+                <div class="flex items-center space-x-3">
+                    <button onclick="showAuth('login')" class="text-gray-600 hover:text-brand font-semibold px-3 py-2">Masuk</button>
+                    <button onclick="showAuth('register')" class="bg-brand hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md">Daftar Gratis</button>
+                </div>
             </div>
         </div>
+    </nav>
 
-        <!-- API KEY -->
-        <div class="box box-white" style="text-align:center;">
-            <p style="color:#6b7280; font-size:12px; margin:0;">API KEY KAMU</p>
-            <div id="api-key" class="api">Memuat...</div>
-            <button onclick="copyKey()">Copy API Key</button>
+    <section class="max-w-7xl mx-auto px-4 pt-16 pb-24 text-center">
+        <div class="inline-block bg-emerald-100 text-emerald-700 font-semibold px-4 py-1.5 rounded-full mb-6 text-sm">🔥 Mulai dari Rp 4.000 saja</div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight">Bosan Bayar Mahal <br> untuk API AI?</h1>
+        <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-500 mb-10">Akses multi-model AI tanpa batas. Satu API Key untuk semua kebutuhan coding dan project-mu. Tanpa langganan bulanan.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <button onclick="showAuth('register')" class="bg-brand hover:bg-emerald-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg text-lg">Mulai Ngoding Sekarang</button>
+            <a href="#pricing" class="bg-white border-2 border-gray-200 hover:border-brand text-gray-700 font-bold px-8 py-4 rounded-xl text-lg">Lihat Harga</a>
         </div>
+    </section>
 
-        <!-- KUOTA -->
-        <div class="box" style="text-align:center;">
-            <p style="color:#6b7280; font-size:12px; margin:0;">SISA KUOTA</p>
-            <div id="quota" style="font-size:24px; font-weight:bold; margin:10px 0; color:#000;">0 Token</div>
-            <button class="btn-outline" onclick="topUp()">Beli / Top-up Paket</button>
-        </div>
-
-        <!-- MODEL AI (Tampilan Statis seperti desain awal) -->
-        <div class="box box-white">
-            <p style="font-size:12px; font-weight:bold; color:#6b7280; margin:0 0 10px 0; text-align:center;">MODEL AI TERSEDIA</p>
-            <div style="background:#000; color:#fff; border-radius:8px; padding:15px; text-align:center;">
-                <h4 style="color:#22c55e; margin:0 0 10px 0; font-size: 18px;">auto-router</h4>
-                <p style="font-size:12px; color:#ccc; margin:0 0 15px 0; line-height:1.4;">Satu endpoint, auto-route ke model terbaik: GPT-4o, Claude, Gemini, DeepSeek, dll.</p>
-                <button style="background:#fff; color:#000; padding:10px; font-size:14px;" onclick="copyText('auto-router')">Copy Model ID</button>
+    <section id="pricing" class="py-20 bg-gray-50 border-t">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Harga Transparan</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white rounded-3xl p-8 border shadow-sm flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-500 mb-2">Harian</h3>
+                    <div class="text-4xl font-extrabold text-gray-900 mb-4">Rp 4.000</div>
+                    <ul class="text-gray-600 space-y-2 mb-6 flex-1"><li>✅ 40 Juta Token</li><li>✅ Aktif 1 Hari</li></ul>
+                    <button onclick="showAuth('register')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">Pilih Harian</button>
+                </div>
+                <div class="bg-white rounded-3xl p-8 border-2 border-brand shadow-xl relative flex flex-col md:-translate-y-4">
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-brand text-white px-4 py-1 rounded-full text-sm font-bold">PALING LARIS</div>
+                    <h3 class="text-lg font-semibold text-brand mb-2">Mingguan</h3>
+                    <div class="text-4xl font-extrabold text-gray-900 mb-4">Rp 20.000</div>
+                    <ul class="text-gray-600 space-y-2 mb-6 flex-1"><li>✅ 280 Juta Token</li><li>✅ Aktif 7 Hari</li></ul>
+                    <button onclick="showAuth('register')" class="w-full bg-brand hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg">Pilih Mingguan</button>
+                </div>
+                <div class="bg-white rounded-3xl p-8 border shadow-sm flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-500 mb-2">Bulanan</h3>
+                    <div class="text-4xl font-extrabold text-gray-900 mb-4">Rp 50.000</div>
+                    <ul class="text-gray-600 space-y-2 mb-6 flex-1"><li>✅ 1.2 Miliar Token</li><li>✅ Aktif 30 Hari</li></ul>
+                    <button onclick="showAuth('register')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl">Pilih Bulanan</button>
+                </div>
             </div>
         </div>
+    </section>
 
-        <button onclick="doLogout()" style="background:#ef4444; color:#fff; margin-bottom: 20px;">Logout</button>
+    <div id="authModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+            <button onclick="hideAuth()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            <h2 id="authTitle" class="text-2xl font-bold text-center mb-6">Masuk</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="authEmail" class="w-full px-4 py-2 border rounded-lg focus:ring-brand outline-none" placeholder="email@example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="authPassword" class="w-full px-4 py-2 border rounded-lg focus:ring-brand outline-none" placeholder="••••••••">
+                </div>
+                <button id="authSubmitBtn" onclick="handleAuth()" class="w-full bg-brand hover:bg-emerald-600 text-white font-bold py-3 rounded-lg mt-2">Masuk</button>
+                <div class="text-center mt-2">
+                    <button onclick="lupaSandi()" class="text-sm text-brand hover:underline">Lupa Sandi?</button>
+                </div>
+            </div>
+            <div class="mt-6 text-center text-sm text-gray-600">
+                <span id="authToggleText">Belum punya akun?</span> 
+                <button id="authToggleLink" onclick="toggleAuthMode()" class="text-brand font-bold hover:underline">Daftar</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const SUPA_URL = 'https://ebzycnqfbrsbqhmthmux.supabase.co';
-        const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVienljbnFmYnJzYnFobXRobXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzI3MjcsImV4cCI6MjEwMTYwODcyN30.HfB6CSHtY_jM-1YKS0-2IlU2MtsOgWSNkOaguMQ4Pt0';
-        const WORKER = 'https://tokenobral-api.cakagus.workers.dev';
-        let token = '';
+        const SUPABASE_URL = "https://ebzycnqfbrsbqhmthmux.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVienljbnFmYnJzYnFobXRobXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzI3MjcsImV4cCI6MjEwMTYwODcyN30.HfB6CSHtY_jM-1YKS0-2IlU2MtsOgWSNkOaguMQ4Pt0"; 
+        let isLoginMode = true;
 
-        async function doLogin() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            const btn = document.getElementById('btn-login');
-            const msg = document.getElementById('msg');
+        function showAuth(mode) {
+            isLoginMode = (mode === 'login');
+            document.getElementById('authTitle').innerText = isLoginMode ? 'Masuk' : 'Daftar Akun Baru';
+            document.getElementById('authSubmitBtn').innerText = isLoginMode ? 'Masuk' : 'Daftar Sekarang';
+            document.getElementById('authToggleText').innerText = isLoginMode ? 'Belum punya akun?' : 'Sudah punya akun?';
+            document.getElementById('authToggleLink').innerText = isLoginMode ? 'Daftar' : 'Masuk';
+            document.getElementById('authModal').classList.remove('hidden');
+        }
 
-            if(!email || !pass) { msg.innerText = "Isi email & password!"; return; }
-            btn.innerText = "Loading..."; btn.disabled = true; msg.innerText = "";
+        function hideAuth() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+        }
 
+        function toggleAuthMode() { showAuth(isLoginMode ? 'register' : 'login'); }
+
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const btn = document.getElementById('authSubmitBtn');
+            const originalText = btn.innerText;
+            
+            if (!email || !password) return alert('Email dan password wajib diisi!');
+            btn.innerText = 'Memproses...'; btn.disabled = true;
+
+            const endpoint = isLoginMode ? `${SUPABASE_URL}/auth/v1/token?grant_type=password` : `${SUPABASE_URL}/auth/v1/signup`;
+            
             try {
-                const res = await fetch(SUPA_URL + '/auth/v1/token?grant_type=password', {
+                const res = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, password: pass })
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+                    body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
                 
-                if (!res.ok) throw new Error(data.error_description || "Login Gagal");
-
-                token = data.access_token;
-                document.getElementById('login-box').classList.add('hidden');
-                document.getElementById('dash-box').classList.remove('hidden');
-                fetchStats();
-            } catch (e) {
-                msg.innerText = e.message;
-                btn.innerText = "Masuk"; btn.disabled = false;
+                if (res.ok) {
+                    if (isLoginMode) {
+                        localStorage.setItem('sb_token', data.access_token);
+                        alert('Login Berhasil!');
+                        window.location.href = '/dashboard.html';
+                    } else {
+                        alert('Pendaftaran berhasil! Silakan Masuk.');
+                        showAuth('login');
+                    }
+                } else {
+                    alert('Error: ' + (data.msg || data.error_description || 'Gagal memproses.'));
+                }
+            } catch(e) {
+                alert('Koneksi gagal. Pastikan URL Supabase sudah benar.');
+            } finally {
+                btn.innerText = originalText; btn.disabled = false;
             }
         }
 
-        async function fetchStats() {
+        async function lupaSandi() {
+            const email = document.getElementById('authEmail').value;
+            if(!email) return alert("Ketik email kamu dulu di kolom atas, lalu klik Lupa Sandi.");
+            const btn = document.getElementById('authSubmitBtn');
+            btn.innerText = 'Mengirim...'; btn.disabled = true;
             try {
-                const res = await fetch(WORKER + '/api/user-stats', {
-                    headers: { 'Authorization': 'Bearer ' + token }
+                const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+                    method: 'POST', headers: {'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email })
                 });
-                const data = await res.json();
-                document.getElementById('api-key').innerText = data.api_key || "Belum ada";
-                document.getElementById('quota').innerText = new Intl.NumberFormat('id-ID').format(data.token_quota || 0) + " Token";
-            } catch (e) {
-                document.getElementById('api-key').innerText = "Error load";
-            }
-        }
-
-        function copyKey() {
-            const k = document.getElementById('api-key').innerText;
-            if(k === 'Memuat...' || k === 'Error load') return;
-            navigator.clipboard.writeText(k);
-            alert("API Key dicopy!");
-        }
-
-        function copyText(text) {
-            navigator.clipboard.writeText(text);
-            alert("Berhasil dicopy: " + text);
-        }
-
-        function topUp() {
-            // Ganti nomor WA di bawah ini dengan nomor Admin Anda
-            const noWA = "6281234567890"; 
-            const pesan = "Halo Admin, saya mau Top-up kuota Tokenobral.";
-            window.open(`https://wa.me/${noWA}?text=${encodeURIComponent(pesan)}`, '_blank');
-        }
-
-        function doLogout() {
-            token = '';
-            document.getElementById('login-box').classList.remove('hidden');
-            document.getElementById('dash-box').classList.add('hidden');
-            document.getElementById('btn-login').innerText = "Masuk"; document.getElementById('btn-login').disabled = false;
+                if(res.ok) alert('✅ Link reset sandi telah dikirim! Cek Inbox/Spam email kamu.');
+                else alert('❌ Gagal mengirim. Pastikan email terdaftar.');
+            } catch(e) { alert('Koneksi gagal.'); } finally { btn.innerText = 'Masuk'; btn.disabled = false; }
         }
     </script>
 </body>
