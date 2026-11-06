@@ -13,11 +13,12 @@
 
     <!-- LOGIN ADMIN -->
     <div id="loginSection" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-2xl shadow-lg text-center">
-        <h1 class="text-2xl font-bold mb-2">Panel Admin</h1>
-        <p class="text-gray-500 mb-6 text-sm">Masukkan API Key Admin kamu untuk melanjutkan.</p>
-        <input type="password" id="adminKeyInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="sk-tob-...">
+        <h1 class="text-2xl font-bold mb-2">Admin Panel</h1>
+        <p class="text-gray-500 mb-6 text-sm">Login menggunakan akun Supabase kamu.</p>
+        <input type="email" id="adminEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="Email Admin">
+        <input type="password" id="adminPass" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="Password">
         <button onclick="loginAdmin()" class="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-emerald-600 transition-colors">Masuk</button>
-        <p id="loginError" class="text-red-500 text-sm mt-3 hidden">API Key salah!</p>
+        <p id="loginError" class="text-red-500 text-sm mt-3 hidden">Email atau Password salah / Bukan Admin!</p>
     </div>
 
     <!-- DASHBOARD ADMIN -->
@@ -27,7 +28,6 @@
             <button onclick="logoutAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm">Keluar</button>
         </div>
 
-        <!-- STATISTIK CARDS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                 <p class="text-sm text-gray-500 font-semibold mb-1">Total Pendapatan</p>
@@ -43,7 +43,6 @@
             </div>
         </div>
 
-        <!-- TABEL USER -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h3 class="font-bold text-gray-800">Daftar Pengguna</h3>
@@ -57,10 +56,11 @@
                             <th class="p-4">Sisa Kuota</th>
                             <th class="p-4">Terpakai</th>
                             <th class="p-4">Masa Aktif</th>
+                            <th class="p-4 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
-                        <tr><td colspan="4" class="p-4 text-center">Memuat data...</td></tr>
+                        <tr><td colspan="5" class="p-4 text-center">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -69,37 +69,61 @@
 
     <script>
         const WORKER_URL = "https://tokenobral-api.cakagus.workers.dev";
-        let adminKey = "";
+        // GANTI DENGAN URL & ANON KEY SUPABASE KAMU
+        const SUPABASE_URL = "https://ebzycnqfbrsbqhmthmux.supabase.co";
+        const SUPABASE_ANON_KEY = "MASUKKAN_ANON_KEY_SUPABASE_DISINI"; 
 
-        // Cek jika sudah login sebelumnya
-        const savedKey = localStorage.getItem('admin_key');
-        if (savedKey) {
-            adminKey = savedKey;
-            document.getElementById('adminKeyInput').value = savedKey;
-            loginAdmin();
+        let adminToken = localStorage.getItem('admin_token');
+
+        if (adminToken) {
+            loadAdminData();
         }
 
-        function loginAdmin() {
-            adminKey = document.getElementById('adminKeyInput').value;
-            if (!adminKey) return;
-            
-            fetch(`${WORKER_URL}/api/admin/data`, {
-                headers: { 'Authorization': `Bearer ${adminKey}` }
-            })
-            .then(res => {
-                if (res.status === 403) throw new Error("Akses Ditolak");
-                return res.json();
-            })
-            .then(data => {
-                localStorage.setItem('admin_key', adminKey);
+        async function loginAdmin() {
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            const err = document.getElementById('loginError');
+            err.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+                    body: JSON.stringify({ email, password: pass })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    adminToken = data.access_token;
+                    localStorage.setItem('admin_token', adminToken);
+                    loadAdminData();
+                } else {
+                    err.classList.remove('hidden');
+                }
+            } catch (e) {
+                err.innerText = "Koneksi gagal.";
+                err.classList.remove('hidden');
+            }
+        }
+
+        async function loadAdminData() {
+            try {
+                const res = await fetch(`${WORKER_URL}/api/admin/data`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (res.status === 403) {
+                    alert("Akses Ditolak: Akun ini bukan admin.");
+                    return logoutAdmin();
+                }
+                
+                const data = await res.json();
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('dashboardSection').classList.remove('hidden');
                 renderData(data);
-            })
-            .catch(err => {
-                document.getElementById('loginError').classList.remove('hidden');
-                localStorage.removeItem('admin_key');
-            });
+            } catch(e) {
+                logoutAdmin();
+            }
         }
 
         function renderData(data) {
@@ -109,7 +133,7 @@
 
             const tbody = document.getElementById('userTableBody');
             if (data.users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Belum ada user.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">Belum ada user.</td></tr>';
                 return;
             }
 
@@ -128,17 +152,37 @@
                             ${tgl}
                         </span>
                     </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteUser('${u.id}', '${u.api_key}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded text-xs font-bold">Hapus</button>
+                    </td>
                 </tr>
                 `;
             }).join('');
         }
 
-        function loadAdminData() {
-            loginAdmin(); // Panggil ulang fetch untuk refresh
+        async function deleteUser(id, apiKey) {
+            if (!confirm(`Yakin ingin menghapus user dengan API Key ${apiKey}?`)) return;
+            
+            try {
+                const res = await fetch(`${WORKER_URL}/api/admin/delete-user`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                if (res.ok) {
+                    alert("User berhasil dihapus.");
+                    loadAdminData(); // Refresh tabel
+                } else {
+                    alert("Gagal menghapus user.");
+                }
+            } catch (e) {
+                alert("Error koneksi.");
+            }
         }
 
         function logoutAdmin() {
-            localStorage.removeItem('admin_key');
+            localStorage.removeItem('admin_token');
             window.location.reload();
         }
     </script>
