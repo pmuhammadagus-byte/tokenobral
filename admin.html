@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Tokenobral</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { brand: '#10B981' } } } }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-4 md:p-8">
+
+    <!-- LOGIN ADMIN -->
+    <div id="loginSection" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-2xl shadow-lg text-center">
+        <h1 class="text-2xl font-bold mb-2">Panel Admin</h1>
+        <p class="text-gray-500 mb-6 text-sm">Masukkan API Key Admin kamu untuk melanjutkan.</p>
+        <input type="password" id="adminKeyInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="sk-tob-...">
+        <button onclick="loginAdmin()" class="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-emerald-600 transition-colors">Masuk</button>
+        <p id="loginError" class="text-red-500 text-sm mt-3 hidden">API Key salah!</p>
+    </div>
+
+    <!-- DASHBOARD ADMIN -->
+    <div id="dashboardSection" class="max-w-6xl mx-auto hidden">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900">Admin Dashboard</h1>
+            <button onclick="logoutAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm">Keluar</button>
+        </div>
+
+        <!-- STATISTIK CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500 font-semibold mb-1">Total Pendapatan</p>
+                <h2 class="text-3xl font-bold text-green-600" id="statRevenue">Rp 0</h2>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500 font-semibold mb-1">Total Pengguna</p>
+                <h2 class="text-3xl font-bold text-gray-900" id="statUsers">0</h2>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-sm text-gray-500 font-semibold mb-1">Total Token Terpakai</p>
+                <h2 class="text-3xl font-bold text-blue-600" id="statTokens">0</h2>
+            </div>
+        </div>
+
+        <!-- TABEL USER -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800">Daftar Pengguna</h3>
+                <button onclick="loadAdminData()" class="text-brand text-sm font-bold hover:underline">Refresh Data</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-100 text-gray-600">
+                        <tr>
+                            <th class="p-4">API Key</th>
+                            <th class="p-4">Sisa Kuota</th>
+                            <th class="p-4">Terpakai</th>
+                            <th class="p-4">Masa Aktif</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="4" class="p-4 text-center">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://tokenobral-api.cakagus.workers.dev";
+        let adminKey = "";
+
+        // Cek jika sudah login sebelumnya
+        const savedKey = localStorage.getItem('admin_key');
+        if (savedKey) {
+            adminKey = savedKey;
+            document.getElementById('adminKeyInput').value = savedKey;
+            loginAdmin();
+        }
+
+        function loginAdmin() {
+            adminKey = document.getElementById('adminKeyInput').value;
+            if (!adminKey) return;
+            
+            fetch(`${WORKER_URL}/api/admin/data`, {
+                headers: { 'Authorization': `Bearer ${adminKey}` }
+            })
+            .then(res => {
+                if (res.status === 403) throw new Error("Akses Ditolak");
+                return res.json();
+            })
+            .then(data => {
+                localStorage.setItem('admin_key', adminKey);
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                renderData(data);
+            })
+            .catch(err => {
+                document.getElementById('loginError').classList.remove('hidden');
+                localStorage.removeItem('admin_key');
+            });
+        }
+
+        function renderData(data) {
+            document.getElementById('statRevenue').innerText = "Rp " + data.totalRevenue.toLocaleString('id-ID');
+            document.getElementById('statUsers').innerText = data.totalUsers.toLocaleString('id-ID');
+            document.getElementById('statTokens').innerText = data.totalTokensUsed.toLocaleString('id-ID');
+
+            const tbody = document.getElementById('userTableBody');
+            if (data.users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Belum ada user.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.users.map(u => {
+                const sisa = (u.token_quota || 0) - (u.token_used || 0);
+                const tgl = u.plan_expires_at ? new Date(u.plan_expires_at).toLocaleDateString('id-ID') : '-';
+                const isAktif = u.plan_expires_at && new Date(u.plan_expires_at) > new Date() && sisa > 0;
+                
+                return `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="p-4 font-mono text-xs">${u.api_key || '-'}</td>
+                    <td class="p-4 font-bold ${sisa > 0 ? 'text-green-600' : 'text-red-500'}">${sisa.toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-gray-600">${(u.token_used || 0).toLocaleString('id-ID')}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 text-xs rounded ${isAktif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                            ${tgl}
+                        </span>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function loadAdminData() {
+            loginAdmin(); // Panggil ulang fetch untuk refresh
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('admin_key');
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
