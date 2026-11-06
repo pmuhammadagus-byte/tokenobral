@@ -212,7 +212,8 @@
                 }
 
                 const historyRes = await fetch(`${WORKER_URL}/api/history`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const history = await historyRes.json();
+                const historyData = await historyRes.json();
+                const history = Array.isArray(historyData) ? historyData : [];
                 const historyDiv = document.getElementById('historyList');
                 
                 if (!history || history.length === 0) {
