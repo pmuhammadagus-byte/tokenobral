@@ -120,7 +120,7 @@
                 
                 if (!res.ok) {
                     // 403 = Bukan admin, 401 = Token expired
-                    throw new Error(`Akses Ditolak (${res.status})`);
+                    const errData = await res.json(); throw new Error(`Error (${res.status}): ` + JSON.stringify(errData));
                 }
                 
                 const data = await res.json();
