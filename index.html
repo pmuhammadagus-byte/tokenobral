@@ -10,6 +10,12 @@
         tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }, colors: { brand: '#10B981' } } } }
     </script>
 </head>
+<script>
+  // Deteksi jika URL berisi token reset password dari Supabase
+  if (window.location.hash.includes("access_token") && window.location.hash.includes("type=recovery")) {
+    window.location.href = "/reset-password.html" + window.location.hash;
+  }
+</script>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased overflow-x-hidden">
 
     <nav class="bg-white shadow-sm sticky top-0 z-40">
